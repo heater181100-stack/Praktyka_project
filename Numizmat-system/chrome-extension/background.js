@@ -38,8 +38,8 @@ async function findPriceRange(payload = {}) {
 
   const searchUrl = new URL(ALLEGRO_SEARCH_URL);
   searchUrl.searchParams.set("string", cleanSearchQuery);
-  searchUrl.searchParams.set("buyNow", "1"); // Только фиксированная цена Kup Teraz
-  searchUrl.searchParams.set("order", "p"); // Сортировка по возрастанию цены
+  searchUrl.searchParams.set("buyNow", "1");
+  searchUrl.searchParams.set("order", "p");
 
   const timeoutMs = Number(payload.timeoutMs ?? 30000);
   const closeTabs = payload.closeTabs !== false;
