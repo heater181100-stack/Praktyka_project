@@ -1,0 +1,33 @@
+{
+  "manifest_version": 3,
+  "name": "Allegro Numizmatyka Scraper",
+  "version": "1.0.0",
+  "description": "Scraper cen numizmatyki Allegro dla systemu Docker",
+  "permissions": [
+    "tabs",
+    "scripting",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "https://allegro.pl/*",
+    "http://localhost/*",
+    "http://127.0.0.1/*",
+    "http://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://localhost/*",
+        "http://localhost:*/*",
+        "http://127.0.0.1/*",
+        "http://127.0.0.1:*/*",
+        "http://*/*"
+      ],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ]
+}
