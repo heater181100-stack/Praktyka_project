@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once __DIR__ . '/../src/SampleData.php';
 require_once __DIR__ . '/../src/NbpImporter.php';
 
@@ -40,20 +41,29 @@ $todayFormatted = date('d.m.Y');
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 30px 20px;
+            padding: 0 0 30px 0;
         }
 
         .container {
             max-width: 1240px;
             margin: 0 auto;
+            padding: 0 20px;
         }
 
-        .nav-links {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
+        .top-navbar {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 0;
+            margin-bottom: 30px;
         }
-
+        .top-navbar .container {
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;
+        }
+        
+        .nav-links { display: flex; gap: 10px; }
+        .user-menu { display: flex; gap: 10px; align-items: center; }
+        .user-greeting { font-weight: 600; color: var(--text-muted); font-size: 14px; margin-right: 5px; }
+        
         .nav-btn {
             text-decoration: none;
             padding: 8px 16px;
@@ -63,12 +73,18 @@ $todayFormatted = date('d.m.Y');
             color: var(--text-main);
             background: #e2e8f0;
             transition: all 0.2s;
+            border: 1px solid transparent;
         }
-
         .nav-btn.active {
             background: var(--primary);
             color: #ffffff;
         }
+        .btn-login { background: #ffffff; border-color: var(--border-color); }
+        .btn-register { background: var(--primary); color: #ffffff; }
+        .btn-logout { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+        .btn-login:hover { background: #f1f5f9; }
+        .btn-register:hover { background: var(--primary-hover); }
+        .btn-logout:hover { background: #fecaca; }
 
         .panel {
             background: var(--card-bg);
@@ -161,13 +177,27 @@ $todayFormatted = date('d.m.Y');
 </head>
 <body>
 
-<div class="container">
-    <div class="nav-links">
-        <a href="index.php" class="nav-btn">📅 Dzisiejsze notowania</a>
-        <a href="history.php" class="nav-btn">📊 Historia i Analiza kursów</a>
-        <a href="charts.php" class="nav-btn active">📈 Wykresy kursów</a>
+<div class="top-navbar">
+    <div class="container">
+        <div class="nav-links">
+            <a href="index.php" class="nav-btn">📅 Dzisiejsze notowania</a>
+            <a href="history.php" class="nav-btn">📊 Historia i Analiza kursów</a>
+            <a href="charts.php" class="nav-btn active">📈 Wykresy kursów</a>
+        </div>
+        
+        <div class="user-menu">
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <span class="user-greeting">👤 Witaj, <?= htmlspecialchars($_SESSION['username']) ?>!</span>
+                <a href="logout.php" class="nav-btn btn-logout">Wyloguj</a>
+            <?php else: ?>
+                <a href="login.php" class="nav-btn btn-login">Zaloguj się</a>
+                <a href="login.php?mode=register" class="nav-btn btn-register">Rejestracja</a>
+            <?php endif; ?>
+        </div>
     </div>
+</div>
 
+<div class="container">
     <div class="panel">
         <h2 style="margin: 0 0 6px 0; font-size: 20px;">Wykresy wahań kursów monet</h2>
         <div style="font-size: 13px; color: var(--text-muted);">

@@ -1,4 +1,5 @@
 <?php
+session_start();
 date_default_timezone_set('Europe/Warsaw');
 require_once __DIR__ . '/../src/SampleData.php';
 require_once __DIR__ . '/../src/NbpImporter.php';
@@ -21,7 +22,7 @@ try {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         coin_name TEXT NOT NULL,
         scan_date DATE NOT NULL,
-        scanned_at DATETIME NOT NULL,
+        scanned_at DATETIME,
         min_price REAL,
         max_price REAL,
         min_url TEXT,
@@ -86,16 +87,37 @@ function formatPrice(?float $price): string
             background-color: var(--bg-color);
             color: var(--text-main);
             margin: 0;
-            padding: 30px 20px;
+            padding: 0 0 30px 0;
         }
-        .container { max-width: 1240px; margin: 0 auto; }
-        .nav-links { display: flex; gap: 10px; margin-bottom: 20px; }
+        .container { max-width: 1240px; margin: 0 auto; padding: 0 20px; }
+        
+        .top-navbar {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 0;
+            margin-bottom: 30px;
+        }
+        .top-navbar .container {
+            display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;
+        }
+        
+        .nav-links { display: flex; gap: 10px; }
+        .user-menu { display: flex; gap: 10px; align-items: center; }
+        .user-greeting { font-weight: 600; color: var(--text-muted); font-size: 14px; margin-right: 5px; }
+        
         .nav-btn {
             text-decoration: none; padding: 8px 16px; border-radius: 6px;
             font-size: 14px; font-weight: 600; color: var(--text-main);
-            background: #e2e8f0; transition: all 0.2s;
+            background: #e2e8f0; transition: all 0.2s; border: 1px solid transparent;
         }
         .nav-btn.active { background: var(--primary); color: #ffffff; }
+        .btn-login { background: #ffffff; border-color: var(--border-color); }
+        .btn-register { background: var(--primary); color: #ffffff; }
+        .btn-logout { background: #fee2e2; color: #991b1b; border-color: #fca5a5; }
+        .btn-login:hover { background: #f1f5f9; }
+        .btn-register:hover { background: var(--primary-hover); }
+        .btn-logout:hover { background: #fecaca; }
+
         .panel {
             background: var(--card-bg); border: 1px solid var(--border-color);
             border-radius: 8px; padding: 20px 24px; margin-bottom: 24px;
@@ -139,13 +161,27 @@ function formatPrice(?float $price): string
 </head>
 <body>
 
-<div class="container">
-    <div class="nav-links">
-        <a href="index.php" class="nav-btn active">📅 Dzisiejsze ceny (<?= $todayFormatted ?>)</a>
-        <a href="history.php" class="nav-btn">📊 Historia i Analiza kursów</a>
-        <a href="charts.php" class="nav-btn">📈 Wykresy kursów</a>
+<div class="top-navbar">
+    <div class="container">
+        <div class="nav-links">
+            <a href="index.php" class="nav-btn active">📅 Dzisiejsze ceny (<?= $todayFormatted ?>)</a>
+            <a href="history.php" class="nav-btn">📊 Historia i Analiza kursów</a>
+            <a href="charts.php" class="nav-btn">📈 Wykresy kursów</a>
+        </div>
+        
+        <div class="user-menu">
+            <?php if (isset($_SESSION['user_id'])): ?>
+                <span class="user-greeting">👤 Witaj, <?= htmlspecialchars($_SESSION['username']) ?>!</span>
+                <a href="logout.php" class="nav-btn btn-logout">Wyloguj</a>
+            <?php else: ?>
+                <a href="login.php" class="nav-btn btn-login">Zaloguj się</a>
+                <a href="login.php?mode=register" class="nav-btn btn-register">Rejestracja</a>
+            <?php endif; ?>
+        </div>
     </div>
+</div>
 
+<div class="container">
     <div class="panel">
         <div class="panel-header">
             <div>
@@ -191,7 +227,9 @@ function formatPrice(?float $price): string
                     $minUrl = $hasOffers ? $todayPrices[$name]['min_url'] : null;
                     $maxUrl = $hasOffers ? $todayPrices[$name]['max_url'] : null;
                     
-                    $scannedTime = $isScannedToday ? date('H:i:s', strtotime($todayPrices[$name]['scanned_at'])) : null;
+                    $scannedTime = $isScannedToday && !empty($todayPrices[$name]['scanned_at']) 
+                        ? date('H:i:s', strtotime($todayPrices[$name]['scanned_at'])) 
+                        : null;
                 ?>
                 <tr data-coin-name="<?= htmlspecialchars($name, ENT_QUOTES, 'UTF-8') ?>">
                     <td class="col-lp"><?= htmlspecialchars((string)($coin['lp'] ?? '—'), ENT_QUOTES, 'UTF-8') ?></td>
